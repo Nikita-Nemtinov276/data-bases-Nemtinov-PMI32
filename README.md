@@ -60,10 +60,10 @@ ER-модель д.б. представлена в виде ER-диаграмм�
 </h3>
 
 ## №2. Создание таблиц
-![image](/Subo/Kaftable)
-![image](/Subo/Sottable)
-![image](/Subo/Doltable)
-![image](/Subo/Rastable)
-![image](/Subo/Zantable)
-![image](/Subo/SKtable)
-![image](/Subo/SDtable)
+![image](/Subo/Kaftable.png)
+![image](/Subo/Sottable.png)
+![image](/Subo/Doltable.png)
+![image](/Subo/Rastable.png)
+![image](/Subo/Zantable.png)
+![image](/Subo/SKtable.png)
+![image](/Subo/SDtable.png)
