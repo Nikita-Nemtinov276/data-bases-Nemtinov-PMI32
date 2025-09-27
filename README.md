@@ -60,10 +60,17 @@ ER-модель д.б. представлена в виде ER-диаграмм�
 </h3>
 
 ## №2. Создание таблиц
-![image](/Subo/Kaftable.png)
-![image](/Subo/Sottable.png)
-![image](/Subo/Doltable.png)
-![image](/Subo/Rastable.png)
-![image](/Subo/Zantable.png)
-![image](/Subo/SKtable.png)
-![image](/Subo/SDtable.png)
+###Таблица кафедр
+![image](/SUBO/Kaftable.png)
+###Таблица сотрудников
+![image](/SUBO/Sottable.png)
+###Таблица должностей
+![image](/SUBO/Doltable.png)
+###Таблица расписаний
+![image](/SUBO/Rastable.png)
+###Таблица занятий
+![image](/SUBO/Zantable.png)
+###таблица сотрудник-кафедра
+![image](/SUBO/SKtable.png)
+###Таблица сотрудник-должность
+![image](/SUBO/SDtable.png)
