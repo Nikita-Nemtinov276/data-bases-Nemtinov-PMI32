@@ -60,33 +60,97 @@ ER-модель д.б. представлена в виде ER-диаграмм�
 </h3>
 
 ## №2. Создание таблиц
-### Таблица кафедр
-  
-![image](/SUBO/Kaftable.png)
+```
+CREATE TABLE IF NOT EXISTS public."Кафедра"
+(
+    id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+    "Телефон" character varying(11) COLLATE pg_catalog."default" NOT NULL,
+    "Аудитория" character varying(4) COLLATE pg_catalog."default" NOT NULL,
+    "Веб_сайт" character varying(100) COLLATE pg_catalog."default",
+    "Название_кафедры" character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT "Кафедра_pkey" PRIMARY KEY (id),
+    CONSTRAINT "Кафедра_Название_кафедры_key" UNIQUE ("Название_кафедры"),
+    CONSTRAINT "Кафедра_Телефон_key" UNIQUE ("Телефон")
+);
 
-### Таблица сотрудников
+CREATE TABLE IF NOT EXISTS public."Сотрудник"
+(
+    id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+    "Паспорт" character varying(10) COLLATE pg_catalog."default" NOT NULL,
+    "ФИО" character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    "Адрес" character varying(1000) COLLATE pg_catalog."default",
+    "Телефон" character varying(11) COLLATE pg_catalog."default",
+    CONSTRAINT "Сотрудник_pkey" PRIMARY KEY (id),
+    CONSTRAINT "Сотрудник_Паспорт_key" UNIQUE ("Паспорт"),
+    CONSTRAINT "Сотрудник_Телефон_key" UNIQUE ("Телефон")
+);
 
-![image](/SUBO/Sottable.png)
+CREATE TABLE IF NOT EXISTS public."Должность"
+(
+    id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+    "Название" character varying(1000) COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT "Должность_pkey" PRIMARY KEY (id),
+    CONSTRAINT "Должность_Название_key" UNIQUE ("Название")
+);
 
-### Таблица должностей
+CREATE TABLE IF NOT EXISTS public."Расписание"
+(
+    id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+    "Аудитория" character varying(4) COLLATE pg_catalog."default" NOT NULL,
+    "Время" timestamp without time zone,
+    "Название_занятия" character varying(1000) COLLATE pg_catalog."default",
+    "сотрудник_id" integer NOT NULL,
+    CONSTRAINT "Расписание_pkey" PRIMARY KEY (id),
+    CONSTRAINT "Расписание_id_сотрудника_fkey" FOREIGN KEY ("сотрудник_id")
+        REFERENCES public."Сотрудник" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
 
-![image](/SUBO/Doltable.png)
+CREATE TABLE IF NOT EXISTS public."Занятие"
+(
+    id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+    "Дата" date,
+    "Занятие_проведено" integer,
+    "расписание_id" integer NOT NULL,
+    CONSTRAINT "Занятие_pkey" PRIMARY KEY (id),
+    CONSTRAINT "Занятие_id_расписание_fkey" FOREIGN KEY ("расписание_id")
+        REFERENCES public."Расписание" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
 
-### Таблица расписаний
+CREATE TABLE IF NOT EXISTS public."Сотрудник_Кафедра"
+(
+    "сотрудник_id" integer NOT NULL,
+    "кафедра_id" integer NOT NULL,
+    CONSTRAINT "Сотрудник_Кафедра_pkey" PRIMARY KEY ("сотрудник_id", "кафедра_id"),
+    CONSTRAINT "Сотрудник_Кафедра_id_кафедры_fkey" FOREIGN KEY ("кафедра_id")
+        REFERENCES public."Кафедра" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT "Сотрудник_Кафедра_id_сотрудника_fkey" FOREIGN KEY ("сотрудник_id")
+        REFERENCES public."Сотрудник" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
 
-![image](/SUBO/Rastable.png)
-
-### Таблица занятий
-
-![image](/SUBO/Zantable.png)
-
-### таблица сотрудник-кафедра
-
-![image](/SUBO/SKtable.png)
-
-### Таблица сотрудник-должность
-
-![image](/SUBO/SDtable.png)
+CREATE TABLE IF NOT EXISTS public."Сотрудник_Должность"
+(
+    "сотрудник_id" integer NOT NULL,
+    "должность_id" integer NOT NULL,
+    "Процентная_ставка" numeric(10,2) NOT NULL,
+    CONSTRAINT "Сотрудник_Должность_pkey" PRIMARY KEY ("сотрудник_id", "должность_id"),
+    CONSTRAINT "Сотрудник_Должнос_id_сотрудника_fkey" FOREIGN KEY ("сотрудник_id")
+        REFERENCES public."Сотрудник" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT "Сотрудник_Должност_id_должности_fkey" FOREIGN KEY ("должность_id")
+        REFERENCES public."Должность" (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
+```
 
 ## 2.1 Диаграмма
 ![image](/SUBO/PGdiag.png)
