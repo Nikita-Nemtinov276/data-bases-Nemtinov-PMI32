@@ -153,7 +153,7 @@ CREATE TABLE IF NOT EXISTS public."Сотрудник_Должность"
 ```
 
 ## 2.1 Диаграмма
-![image](/SUBO/PGdiag.png)
+![image](/SUBO/ERD.png)
 
 ## 2.2 Данные в таблицах
 ### Данные кафедр
