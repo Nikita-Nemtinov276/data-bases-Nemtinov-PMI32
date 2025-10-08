@@ -64,41 +64,42 @@ ER-модель д.б. представлена в виде ER-диаграмм�
 CREATE TABLE IF NOT EXISTS public."Кафедра"
 (
     id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
-    "Телефон" character varying(11) COLLATE pg_catalog."default" NOT NULL,
-    "Аудитория" character varying(4) COLLATE pg_catalog."default" NOT NULL,
-    "Веб_сайт" character varying(100) COLLATE pg_catalog."default",
-    "Название_кафедры" character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    "телефон" character varying(11) COLLATE pg_catalog."default" NOT NULL,
+    "аудитория" character varying(4) COLLATE pg_catalog."default" NOT NULL,
+    "веб_сайт" character varying(100) COLLATE pg_catalog."default",
+    "название_кафедры" character varying(100) COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT "Кафедра_pkey" PRIMARY KEY (id),
-    CONSTRAINT "Кафедра_Название_кафедры_key" UNIQUE ("Название_кафедры"),
-    CONSTRAINT "Кафедра_Телефон_key" UNIQUE ("Телефон")
+    CONSTRAINT "Кафедра_Название_кафедры_key" UNIQUE ("название_кафедры"),
+    CONSTRAINT "Кафедра_Телефон_key" UNIQUE ("телефон")
 );
 
 CREATE TABLE IF NOT EXISTS public."Сотрудник"
 (
     id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
-    "Паспорт" character varying(10) COLLATE pg_catalog."default" NOT NULL,
-    "ФИО" character varying(100) COLLATE pg_catalog."default" NOT NULL,
-    "Адрес" character varying(1000) COLLATE pg_catalog."default",
-    "Телефон" character varying(11) COLLATE pg_catalog."default",
+    "паспорт" character varying(10) COLLATE pg_catalog."default" NOT NULL,
+    "фио" character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    "адрес" character varying(1000) COLLATE pg_catalog."default",
+    "телефон" character varying(11) COLLATE pg_catalog."default",
+    "дата_рождения" date,
     CONSTRAINT "Сотрудник_pkey" PRIMARY KEY (id),
-    CONSTRAINT "Сотрудник_Паспорт_key" UNIQUE ("Паспорт"),
-    CONSTRAINT "Сотрудник_Телефон_key" UNIQUE ("Телефон")
+    CONSTRAINT "Сотрудник_Паспорт_key" UNIQUE ("паспорт"),
+    CONSTRAINT "Сотрудник_Телефон_key" UNIQUE ("телефон")
 );
 
 CREATE TABLE IF NOT EXISTS public."Должность"
 (
     id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
-    "Название" character varying(1000) COLLATE pg_catalog."default" NOT NULL,
+    "название" character varying(1000) COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT "Должность_pkey" PRIMARY KEY (id),
-    CONSTRAINT "Должность_Название_key" UNIQUE ("Название")
+    CONSTRAINT "Должность_Название_key" UNIQUE ("название")
 );
 
 CREATE TABLE IF NOT EXISTS public."Расписание"
 (
     id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
-    "Аудитория" character varying(4) COLLATE pg_catalog."default" NOT NULL,
-    "Время" timestamp without time zone,
-    "Название_занятия" character varying(1000) COLLATE pg_catalog."default",
+    "аудитория" character varying(4) COLLATE pg_catalog."default" NOT NULL,
+    "время" timestamp without time zone,
+    "название_занятия" character varying(1000) COLLATE pg_catalog."default",
     "сотрудник_id" integer NOT NULL,
     CONSTRAINT "Расписание_pkey" PRIMARY KEY (id),
     CONSTRAINT "Расписание_id_сотрудника_fkey" FOREIGN KEY ("сотрудник_id")
@@ -110,8 +111,8 @@ CREATE TABLE IF NOT EXISTS public."Расписание"
 CREATE TABLE IF NOT EXISTS public."Занятие"
 (
     id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
-    "Дата" date,
-    "Занятие_проведено" integer,
+    "дата" date,
+    "занятие_проведено" integer,
     "расписание_id" integer NOT NULL,
     CONSTRAINT "Занятие_pkey" PRIMARY KEY (id),
     CONSTRAINT "Занятие_id_расписание_fkey" FOREIGN KEY ("расписание_id")
@@ -139,7 +140,7 @@ CREATE TABLE IF NOT EXISTS public."Сотрудник_Должность"
 (
     "сотрудник_id" integer NOT NULL,
     "должность_id" integer NOT NULL,
-    "Процентная_ставка" numeric(10,2) NOT NULL,
+    "процентная_ставка" numeric(10,2) NOT NULL,
     CONSTRAINT "Сотрудник_Должность_pkey" PRIMARY KEY ("сотрудник_id", "должность_id"),
     CONSTRAINT "Сотрудник_Должнос_id_сотрудника_fkey" FOREIGN KEY ("сотрудник_id")
         REFERENCES public."Сотрудник" (id) MATCH SIMPLE
