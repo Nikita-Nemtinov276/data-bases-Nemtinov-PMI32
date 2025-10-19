@@ -266,3 +266,50 @@ order by 1, 2'
 доцент numeric,
 ассистент numeric
 );
+
+
+-- 2.1
+select s.id, count(distinct должность_id)
+from Сотрудник s
+join Сотрудник_Должность sd on sd.сотрудник_id = s.id
+group  by s.id
+having count(distinct должность_id) > 1;
+
+-- 2.2
+select k.id, count(*) as всего_сотрудников, count(case when age(s. дата_рождения ) >= interval '60 years' then 1 end) as пенсионеров
+from Кафедра k
+join Сотрудник_Кафедра  sk on k.id = sk.кафедра_id 
+join Сотрудник  s on sk.сотрудник_id = s.id
+group by k.id, k.название_кафедры
+having count(case when age(s.дата_рождения) >= interval '60 years' then 1 end) * 100.0 / count(*) < 20
+order by k.id;
+
+-- 2.3
+select s.фио, sum(sd.процентная_ставка) as зарплата
+from Сотрудник s
+join Сотрудник_Должность sd on s.id = sd.сотрудник_id
+group by s.id, s.фио 
+having sum(sd.процентная_ставка) > (
+select AVG(зарплата) 
+from (
+select SUM( процентная_ставка ) as зарплата
+from  Сотрудник_Должность 
+group  by  сотрудник_id 
+) as зарплаты
+)
+order by зарплата DESC;
+
+-- 2.4
+select d.название
+from Должность d
+left join Сотрудник_Должность sd on d.id = sd.должность_id
+where sd.должность_id is null
+group by d.id, d.название;
+
+-- 2.5
+select s.id, max(s.фио) as фио, string_agg(d.название, ', ') as все_должности
+from Сотрудник s
+join Сотрудник_Должность sd on sd.сотрудник_id = s.id
+join Должность d on d.id = должность_id
+group by s.id
+having count(distinct sd.должность_id) > 1;
