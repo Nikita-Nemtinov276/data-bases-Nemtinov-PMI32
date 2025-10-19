@@ -195,4 +195,74 @@ dense_rank() over (order by дата_рождения) as dense_rank
 from Сотрудник
 where дата_рождения is not null;
 
-select s.
+select s.фио, d.название, sd.процентная_ставка,
+row_number() over (partition by d.id order by sd.процентная_ставка desc) as row_number,
+dense_rank() over (partition by d.id order by sd.процентная_ставка desc) as dense_rank
+from Сотрудник_Должность sd
+join Сотрудник s on s.id = sd.сотрудник_id
+join Должность d on d.id = sd.должность_id;
+
+select название_кафедры, аудитория, телефон
+row_number() over (order by аудитория) as row_number,
+rank() over (order by аудитория) as rank,
+dense_rank() over (order by аудитория) as dense_rank
+from Кафедра;
+
+-- 5.1
+select аудитория
+from Расписание
+
+except
+
+select аудитория
+from Кафедра
+order by аудитория;
+
+select аудитория
+from Расписание
+
+intersect
+
+select аудитория
+from Кафедра;
+
+select аудитория
+from Расписание
+
+union all
+
+select аудитория
+from Кафедра
+order by аудитория;
+
+-- 6.1
+select count(*) as всего_занятий,
+sum(case when занятие_проведено = 1 then 1 else 0 end) as проведено,
+sum(case when занятие_проведено = 0 then 1 else 0 end) as не_проведено
+from Занятие;
+
+select count(*) as всего_аудиторий,
+sum(case when аудитория like '1%' then 1 else 0 end) as первый_этаж,
+sum(case when аудитория like '2%' then 1 else 0 end) as второй_этаж,
+sum(case when аудитория like '3%' then 1 else 0 end) as третий_этаж,
+sum(case when аудитория like '4%' then 1 else 0 end) as четвертый_этаж,
+sum(case when аудитория like '5%' then 1 else 0 end) as пятый_этаж
+from Расписание;
+
+-- 7.1
+select *
+from crosstab(
+'select k.название_кафедры, d.название as должность, sum(sd.процентная_ставка) as сумма_ставок
+from Сотрудник_Должность sd
+join Должность d on d.id = sd.должность_id
+join Сотрудник s on s.id = sd.сотрудник_id
+join Сотрудник_Кафедра sk on sk.сотрудник_id = s.id
+join Кафедра k on k.id = sk.кафедра_id
+group by k.название_кафедры, d.название
+order by 1, 2'
+) as ct (
+кафедра varchar(100),
+профессор numeric,
+доцент numeric,
+ассистент numeric
+);
