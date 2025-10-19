@@ -271,7 +271,7 @@ where название_кафедры not like '%общей%';
 ```
 select r.id, r.аудитория, r.время, s.фио
 from Сотрудник s, Расписание r
-where r.сотрудник_id = s.id
+where r.сотрудник_id = s.id;
 
 select s.id, s.фио, d.название
 from Сотрудник s, Должность d, Сотрудник_Должность sd
@@ -282,7 +282,7 @@ where s.id = sd.сотрудник_id and d.id = sd.должность_id;
 ```
 select r.id, r.аудитория, r.время, s.фио
 from Сотрудник s
-join Расписание r on r.сотрудник_id = s.id
+join Расписание r on r.сотрудник_id = s.id;
 
 select s.id, s.фио, d.название
 from Сотрудник s
