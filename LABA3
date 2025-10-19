@@ -23,7 +23,7 @@ from Занятие;
 select k.название_кафедры, count(sk.сотрудник_id) as количество_сотрудников
 from Кафедра k
 left join Сотрудник_Кафедра sk on sk.кафедра_id = k.id
-group by k.id
+group by k.id;
 
 -- 1.4
 select k.название_кафедры, s.фио, count(*) as количество_должностей
