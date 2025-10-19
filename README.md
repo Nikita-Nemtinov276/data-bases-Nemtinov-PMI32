@@ -431,12 +431,62 @@ select * from СтатистикаЗанятий;
     <li>Функции ранжирования
       <ol type="1">
         <li>Привести примеры 3-4 запросов с использованием ROW_NUMBER, RANK, DENSE_RANK (с PARTITION BY и без).</li>
-      </ol>
+
+```
+select фио, дата_рождения,
+row_number() over (order by дата_рождения) as row_number,
+rank() over (order by дата_рождения) as rank,
+dense_rank() over (order by дата_рождения) as dense_rank
+from Сотрудник
+where дата_рождения is not null;
+
+select s.фио, d.название, sd.процентная_ставка,
+row_number() over (partition by d.id order by sd.процентная_ставка desc) as row_number,
+dense_rank() over (partition by d.id order by sd.процентная_ставка desc) as dense_rank
+from Сотрудник_Должность sd
+join Сотрудник s on s.id = sd.сотрудник_id
+join Должность d on d.id = sd.должность_id;
+
+select название_кафедры, аудитория, телефон
+row_number() over (order by аудитория) as row_number,
+rank() over (order by аудитория) as rank,
+dense_rank() over (order by аудитория) as dense_rank
+from Кафедра;
+```
+  </ol>
     </li>
     <li>Объединение, пересечение, разность
       <ol type="1">
         <li>Привести примеры 3-4 запросов с использованием UNION / UNION ALL, EXCEPT, INTERSECT. Данные в одном из запросов отсортируйте по произвольному признаку.</li>
-      </ol>
+
+```
+select аудитория
+from Расписание
+
+except
+
+select аудитория
+from Кафедра
+order by аудитория;
+
+select аудитория
+from Расписание
+
+intersect
+
+select аудитория
+from Кафедра;
+
+select аудитория
+from Расписание
+
+union all
+
+select аудитория
+from Кафедра
+order by аудитория;
+```
+ </ol>
     </li>
     <li>Использование CASE, PIVOT и UNPIVOT
       <ol type="1">
