@@ -1,1 +1,198 @@
+-- 1.1
+select *
+from Сотрудник
+order by фио ASC;
 
+select *
+from Сотрудник
+order by дата_рождения DESC;
+
+-- 1.2
+select *
+from Сотрудник
+where дата_рождения > '1990-01-01';
+
+select *
+from Занятие
+where занятие_проведено = 1;
+
+-- 1.3
+select count(*) as всего_занятий, min(дата) as самое_ранее, max(дата) as самое позднее
+from Занятие;
+
+select k.название_кафедры, count(sk.сотрудник_id) as количество_сотрудников
+from Кафедра k
+left join Сотрудник_Кафедра sk on sk.кафедра_id = k.id
+group by k.id
+
+-- 1.4
+select k.название_кафедры, s.фио, count(*) as количество_должностей
+from Сотрудник s
+join Сотрудник_Кафедра sk on sk.сотрудник_id = s.id
+join Кафедра k on k.id = sk.кафедра_id
+join Сотрудник_Должность sd on s.id = sd.сотрудник_id
+group by cube(k.название_кафедры, s.фио);
+
+select k.название_кафедры, s.фио, count(*) as количество_должностей
+from Сотрудник s
+join Сотрудник_Кафедра sk on sk.сотрудник_id = s.id
+join Кафедра k on k.id = sk.кафедра_id
+join Сотрудник_Должность sd on s.id = sd.сотрудник_id
+group by rollup(k.название_кафедры, s.фио);
+
+-- 1.5
+select id, фио
+from Сотрудник 
+where фио not like '%ов';
+
+select id, название_кафедры
+from Кафедра
+where название_кафедры not like '%общей%';
+
+-- 2.1
+select r.id, r.аудитория, r.время, s.фио
+from Сотрудник s, Расписание r
+where r.сотрудник_id = s.id
+
+select s.id, s.фио, d.название
+from Сотрудник s, Должность d, Сотрудник_Должность sd
+where s.id = sd.сотрудник_id and d.id = sd.должность_id;
+
+-- 2.2
+select r.id, r.аудитория, r.время, s.фио
+from Сотрудник s
+join Расписание r on r.сотрудник_id = s.id
+
+select s.id, s.фио, d.название
+from Сотрудник s
+join Сотрудник_Должность sd on s.id = sd.сотрудник_id
+join Должность d on d.id = sd.должность_id;
+
+-- 2.3
+select s.id, s.фио, k.название_кафедры
+from Сотрудник s
+left join Сотрудник_Кафедра sk on s.id = sk.сотрудник_id
+left join Кафедра k on k.id = sk.кафедра_id;
+
+select r.название_занятия, z.дата, z.занятие_проведено
+from Расписание r
+left join Занятие z on r.id = z.расписание_id;
+
+-- 2.4
+select s.id, s.фио, k.название_кафедры
+from Кафедра k 
+right join Сотрудник_Кафедра sk on k.id = sk.кафедра_id
+right join Сотрудник s on s.id = sk.сотрудник_id;
+
+select r.название_занятия, z.дата, z.занятие_проведено
+from Занятие z
+right join Расписание r on r.id = z.расписание_id;
+
+-- 2.5
+select сотрудник_id, sum(процентная_ставка) as сумма_выплат
+from Сотрудник_Должность 
+group by сотрудник_id
+order by сумма_выплат DESC;
+
+select r.сотрудник_id, count(z.занятие_проведено) as количество_проведенных
+from Расписание r
+left join Занятие z on z.расписание_id = r.id
+where занятие_проведено = 1
+group by r.сотрудник_id;
+
+-- 2.6
+select id, название_занятия
+from Расписание
+group by id
+having аудитория between '300' and '399';
+
+select k.название_кафедры, count(sk.сотрудник_id) as количество_сотрудников
+from Кафедра k
+join Сотрудник_Кафедра sk on k.id = sk.кафедра_id
+group by k.название_кафедры
+having count(sk.сотрудник_id) > 1;
+
+-- 2.7
+select фио, телефон
+from Сотрудник s
+where exists(
+select 1
+from Расписание r
+where r.сотрудник_id = s.id
+);
+
+select k.название_кафедры, k.телефон
+from Кафедра k
+where not exists(
+select 1
+from Сотрудник_Кафедра sk
+where sk.кафедра_id = k.id
+);
+
+select s.фио, r.название_занятия
+from Расписание r
+join Сотрудник s on r.сотрудник_id = s.id
+where s.id in (
+select sd.сотрудник_id
+from Сотрудник_Должность sd
+where sd.процентная_ставка > 300.00
+);
+
+-- 3.1
+create view занятия_на_3 as
+select id, название_занятия
+from Расписание
+group by id
+having аудитория between '300' and '399';
+
+create view ФИО_Должность as 
+select s.id, s.фио, d.название
+from Сотрудник s, Должность d, Сотрудник_Должность sd
+where s.id = sd.сотрудник_id and d.id = sd.должность_id;
+
+-- 3.2
+with
+СотрудникСДолжностями as (
+select s.фио, k.название_кафедры, d.название as должность, sd.процентная_ставка
+from Сотрудник s
+join Сотрудник_Кафедра sk on sk.сотрудник_id = s.id
+join Кафедра k on k.id = sk.кафедра_id
+join Сотрудник_Должность sd on s.id = sd.сотрудник_id
+join Должность d on d.id = sd.должность_id
+),
+
+СтавкиПоКафедрам as (
+select название_кафедры, count(distinct фио) as сотрудников, sum(процентная_ставка) as выплаты
+from СотрудникСДолжностями
+group by название_кафедры
+)
+
+select название_кафедры, сотрудников, выплаты
+from СтавкиПоКафедрам
+order by выплаты DESC;
+
+with
+РасписаниеСотрудников as (
+select r.id, r.аудитория, r.время, r.название_занятия, s.фио as преподаватель
+from Расписание r
+join Сотрудник s on r.сотрудник_id = s.id
+),
+
+СтатистикаЗанятий as (
+select rs.преподаватель, count(z.id) as всего_занятий, sum(z.занятие_проведено) as проведено_занятий
+from РасписаниеСотрудников rs
+left join Занятие z on z.расписание_id = rs.id
+group by rs.преподаватель
+)
+
+select * from СтатистикаЗанятий;
+
+-- 4.1
+select фио, дата_рождения,
+row_number() over (order by дата_рождения) as row_number,
+rank() over (order by дата_рождения) as rank,
+dense_rank() over (order by дата_рождения) as dense_rank
+from Сотрудник
+where дата_рождения is not null;
+
+select s.
