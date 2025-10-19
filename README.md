@@ -491,8 +491,42 @@ order by аудитория;
     <li>Использование CASE, PIVOT и UNPIVOT
       <ol type="1">
         <li>Привести примеры получения сводных (итоговых) таблиц с использованием CASE.</li>
-        <li>Привести примеры получения сводных (итоговых) таблиц с использованием PIVOT и UNPIVOT.</li>
-      </ol>
+
+```
+select count(*) as всего_занятий,
+sum(case when занятие_проведено = 1 then 1 else 0 end) as проведено,
+sum(case when занятие_проведено = 0 then 1 else 0 end) as не_проведено
+from Занятие;
+
+select count(*) as всего_аудиторий,
+sum(case when аудитория like '1%' then 1 else 0 end) as первый_этаж,
+sum(case when аудитория like '2%' then 1 else 0 end) as второй_этаж,
+sum(case when аудитория like '3%' then 1 else 0 end) as третий_этаж,
+sum(case when аудитория like '4%' then 1 else 0 end) as четвертый_этаж,
+sum(case when аудитория like '5%' then 1 else 0 end) as пятый_этаж
+from Расписание;
+```
+  <li>Привести примеры получения сводных (итоговых) таблиц с использованием PIVOT и UNPIVOT.</li>
+
+```
+select *
+from crosstab(
+'select k.название_кафедры, d.название as должность, sum(sd.процентная_ставка) as сумма_ставок
+from Сотрудник_Должность sd
+join Должность d on d.id = sd.должность_id
+join Сотрудник s on s.id = sd.сотрудник_id
+join Сотрудник_Кафедра sk on sk.сотрудник_id = s.id
+join Кафедра k on k.id = sk.кафедра_id
+group by k.название_кафедры, d.название
+order by 1, 2'
+) as ct (
+кафедра varchar(100),
+профессор numeric,
+доцент numeric,
+ассистент numeric
+);
+```
+  </ol>
     </li>
   </ol>
 
