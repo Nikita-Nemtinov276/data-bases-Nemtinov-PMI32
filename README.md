@@ -447,7 +447,7 @@ from Сотрудник_Должность sd
 join Сотрудник s on s.id = sd.сотрудник_id
 join Должность d on d.id = sd.должность_id;
 
-select название_кафедры, аудитория, телефон
+select название_кафедры, аудитория, телефон,
 row_number() over (order by аудитория) as row_number,
 rank() over (order by аудитория) as rank,
 dense_rank() over (order by аудитория) as dense_rank
