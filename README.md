@@ -593,4 +593,4 @@ having count(distinct sd.должность_id) > 1;
 ```
   </ol>
 </div>
-<a href="https://github.com/Nikita-Nemtinov276/data-bases-Nemtinov-PMI32/blob/main/SUBO/Немтинов_32.docx" target="_blank">Лабораторная №3</a>
+<a href="https://github.com/Nikita-Nemtinov276/data-bases-Nemtinov-PMI32/blob/main/SUBO/Немтинов_ПМИ32_лаба3.docx" target="_blank">Лабораторная №3</a>
