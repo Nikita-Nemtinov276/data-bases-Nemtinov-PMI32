@@ -303,10 +303,9 @@ left join Занятие z on r.id = z.расписание_id;
 <li>Правое внешнее соединение right join. Привести 2-3 запроса.</li>
 
 ```
-select s.id, s.фио, k.название_кафедры
-from Кафедра k 
-right join Сотрудник_Кафедра sk on k.id = sk.кафедра_id
-right join Сотрудник s on s.id = sk.сотрудник_id;
+SELECT c.фио, r.название_занятия, r.время
+FROM Расписание r
+LEFT JOIN Сотрудник c ON c.id = r.сотрудник_id;
 
 select r.название_занятия, z.дата, z.занятие_проведено
 from Занятие z
