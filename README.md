@@ -637,3 +637,124 @@ BEGIN
 END;
 $$;
 ```
+<li><b> Процедура, на входе получающая название должности и формирующая список кафедр, на которых есть ровно 1 свободная ставка по этой должности.</li>
+  
+```
+CREATE OR REPLACE PROCEDURE public.departments_with_one_vacancy(
+	)
+LANGUAGE 'sql'
+AS $BODY$
+CREATE OR REPLACE PROCEDURE departments_with_one_vacancy(
+    IN position_name VARCHAR(1000)
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    DROP TABLE IF EXISTS temp_departments_vacancy;
+    CREATE TEMP TABLE temp_departments_vacancy AS
+    SELECT 
+        k."название_кафедры" AS department_name,
+        COUNT(DISTINCT sd."сотрудник_id") AS current_employees
+    FROM "Кафедра" k
+    CROSS JOIN "Должность" d
+    LEFT JOIN "Сотрудник_Кафедра" sk ON k.id = sk."кафедра_id"
+    LEFT JOIN "Сотрудник_Должность" sd ON sk."сотрудник_id" = sd."сотрудник_id" AND d.id = sd."должность_id"
+    WHERE d."название" = position_name
+    GROUP BY k.id, k."название_кафедры", d.id
+    HAVING COUNT(DISTINCT sd."сотрудник_id") = 1;
+    
+    -- Вывод результатов
+    IF EXISTS (SELECT 1 FROM temp_departments_vacancy) THEN
+        RAISE NOTICE 'Кафедры с ровно одной свободной ставкой по должности "%":', position_name;
+        FOR rec IN (SELECT * FROM temp_departments_vacancy ORDER BY department_name) 
+        LOOP
+            RAISE NOTICE 'Кафедра: %, Текущие сотрудники: %', rec.department_name, rec.current_employees;
+        END LOOP;
+    ELSE
+        RAISE NOTICE 'Нет кафедр с одной свободной ставкой по должности "%"', position_name;
+    END IF;
+END;
+$$;
+$BODY$;
+```
+<li><c> Процедура, на входе получающая ФИО сотрудника, на выходе выдающая общее количество ставок, на которых он работает (с учетом возможной работы на нескольких кафедрах).</li>
+
+```
+CREATE OR REPLACE PROCEDURE public.get_employee_total_positions(
+	)
+LANGUAGE 'sql'
+AS $BODY$
+CREATE OR REPLACE PROCEDURE get_employee_total_positions(
+    IN employee_fio VARCHAR(100),
+    OUT total_positions NUMERIC(10,2)
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    SELECT COALESCE(SUM(sd."процентная_ставка"), 0) INTO total_positions
+    FROM "Сотрудник_Должность" sd
+    JOIN "Сотрудник" s ON sd."сотрудник_id" = s.id
+    WHERE s."фио" = employee_fio;
+    
+    RAISE NOTICE 'Сотрудник "%" работает на % ставках', employee_fio, total_positions;
+END;
+$$;
+$BODY$;
+```
+
+<li><d> Процедура, вызывающая вложенную процедуру, которая находит средний оклад сотрудников вуза. Вызывающая процедура находит сотрудников, имеющих меньший оклад и назначает им единовременное пособие, при этом формирует данные в виде: ФИО сотрудника, размер пособия в рублях (равный разности суммарного оклада сотрудника и среднего оклада по вузу).</li>
+
+```
+CREATE OR REPLACE PROCEDURE calculate_average_salary(
+    OUT average_salary NUMERIC(10,2)
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Средняя процентная ставка по всем сотрудникам
+    SELECT AVG(sd."процентная_ставка") INTO average_salary
+    FROM "Сотрудник_Должность" sd;
+    
+    RAISE NOTICE 'Средняя ставка (оклад) по вузу: %%', average_salary;
+END;
+$$;
+```
+
+```
+CREATE OR REPLACE PROCEDURE public.assign_subsidy_below_average()
+LANGUAGE 'plpgsql'
+AS $BODY$
+DECLARE
+    avg_salary NUMERIC(10,2);
+    emp_record RECORD;
+BEGIN
+    CALL calculate_average_salary(avg_salary);
+    
+    DROP TABLE IF EXISTS employee_subsidies;
+    CREATE TEMP TABLE employee_subsidies (
+        full_name VARCHAR(100),
+        total_salary NUMERIC(10,2),
+        subsidy_amount NUMERIC(10,2)
+    );
+    
+    INSERT INTO employee_subsidies
+    SELECT 
+        s."фио" AS full_name,
+        SUM(sd."процентная_ставка") AS total_salary,
+        (avg_salary - SUM(sd."процентная_ставка")) AS subsidy_amount
+    FROM "Сотрудник" s
+    JOIN "Сотрудник_Должность" sd ON s.id = sd."сотрудник_id"
+    GROUP BY s.id, s."фио"
+    HAVING SUM(sd."процентная_ставка") < avg_salary;
+    
+    RAISE NOTICE 'Сотрудники со ставкой ниже средней (%):', avg_salary;
+    FOR emp_record IN SELECT * FROM employee_subsidies ORDER BY subsidy_amount DESC
+    LOOP
+        RAISE NOTICE 'ФИО: %, Общая ставка: %, Пособие: %', 
+            emp_record.full_name, 
+            emp_record.total_salary, 
+            emp_record.subsidy_amount;
+    END LOOP;
+END;
+$BODY$;
+```
