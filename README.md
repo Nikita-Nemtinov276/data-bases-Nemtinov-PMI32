@@ -605,8 +605,9 @@ having count(distinct sd.должность_id) > 1;
   <h4>Создать  4 различных хранимых процедуры:</h4>
   <ol type="a">
     <li><b>Процедура без параметров, формирующая список сотрудников, работающих более чем на одной кафедре(отделе) в виде: ФИО, название кафедры(отдела).</li>
-<pre><code>
-CREATE OR REPLACE PROCEDURE employees_multiple_departments()
+      
+```
+      CREATE OR REPLACE PROCEDURE employees_multiple_departments()
 LANGUAGE plpgsql
 AS $$
 DECLARE
@@ -635,4 +636,4 @@ BEGIN
     END LOOP;
 END;
 $$;
-</code></pre>
+```
