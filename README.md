@@ -594,3 +594,45 @@ having count(distinct sd.должность_id) > 1;
   </ol>
 </div>
 <a href="https://github.com/Nikita-Nemtinov276/data-bases-Nemtinov-PMI32/blob/main/SUBO/Немтинов_ПМИ32_лаба3.docx" target="_blank">Лабораторная №3</a>
+
+# <img src="https://github.com/user-attachments/assets/e080adec-6af7-4bd2-b232-d43cb37024ac" width="20" height="20"/> Lab4
+[Назад](#content)
+<h3 align="center">
+  <a href="#client"></a>
+</h3>
+
+<div>
+  <h4>Создать  4 различных хранимых процедуры:</h4>
+  <ol type="a">
+    <li><b>Процедура без параметров, формирующая список сотрудников, работающих более чем на одной кафедре(отделе) в виде: ФИО, название кафедры(отдела).</li>
+<pre><code>
+CREATE OR REPLACE PROCEDURE employees_multiple_departments()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    rec RECORD;
+BEGIN
+    DROP TABLE IF EXISTS temp_multiple_dept_employees;
+    CREATE TEMP TABLE temp_multiple_dept_employees AS
+    SELECT 
+        s."фио" AS full_name,
+        k."название_кафедры" AS department_name
+    FROM "Сотрудник" s
+    JOIN "Сотрудник_Кафедра" sk ON s.id = sk."сотрудник_id"
+    JOIN "Кафедра" k ON sk."кафедра_id" = k.id
+    WHERE s.id IN (
+        SELECT "сотрудник_id" 
+        FROM "Сотрудник_Кафедра" 
+        GROUP BY "сотрудник_id" 
+        HAVING COUNT(DISTINCT "кафедра_id") > 1
+    )
+    ORDER BY s."фио", k."название_кафедры";
+    
+    RAISE NOTICE 'Сотрудники, работающие на нескольких кафедрах:';
+    FOR rec IN SELECT * FROM temp_multiple_dept_employees ORDER BY full_name, department_name
+    LOOP
+        RAISE NOTICE 'ФИО: %, Кафедра: %', rec.full_name, rec.department_name;
+    END LOOP;
+END;
+$$;
+</code></pre>
