@@ -757,3 +757,98 @@ BEGIN
 END;
 $BODY$;
 ```
+</ol>
+
+<h4>3 пользовательские функции:</h4>
+<ol type="a">
+<li><b>Скалярная функция, возвращающая количество работающих пенсионеров вуза.</li>
+		
+```
+CREATE OR REPLACE FUNCTION public.count_retired_employees()
+RETURNS integer
+LANGUAGE 'plpgsql'
+COST 100
+VOLATILE PARALLEL UNSAFE
+AS $BODY$
+DECLARE
+    retired_count INTEGER;
+BEGIN
+    SELECT COUNT(*) INTO retired_count
+    FROM "Сотрудник" s
+    JOIN "Сотрудник_Должность" sd ON s.id = sd."сотрудник_id"
+    WHERE EXTRACT(YEAR FROM AGE(s."дата_рождения")) >= 60;
+    
+    RETURN retired_count;
+END;
+$BODY$;
+```
+
+<li><b>Inline-функция, получающая на входе название должности и возвращающая список сотрудников по отделам(кафедрам), работающих в этой должности.</li>
+
+```
+CREATE OR REPLACE FUNCTION public.get_employees_by_position(
+	position_name character varying)
+    RETURNS TABLE(department_name character varying, employee_fio character varying, position_stake numeric) 
+    LANGUAGE 'sql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 1000
+
+AS $BODY$
+    SELECT 
+        k."название_кафедры" AS department_name,
+        s."фио" AS employee_fio,
+        sd."процентная_ставка" AS position_stake
+    FROM "Сотрудник" s
+    JOIN "Сотрудник_Должность" sd ON s.id = sd."сотрудник_id"
+    JOIN "Должность" d ON sd."должность_id" = d.id
+    JOIN "Сотрудник_Кафедра" sk ON s.id = sk."сотрудник_id"
+    JOIN "Кафедра" k ON sk."кафедра_id" = k.id
+    WHERE d."название" = position_name
+    ORDER BY k."название_кафедры", s."фио";
+$BODY$;
+```
+
+<li><b>Multi-statement-функция, выдающая список кафедр, где сотрудники работают только на этой кафедре и больше нигде.</li>
+
+```
+CREATE OR REPLACE FUNCTION public.get_exclusive_departments(
+	)
+    RETURNS TABLE(department_name character varying, employee_count integer, total_stake numeric) 
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 1000
+
+AS $BODY$
+BEGIN
+    RETURN QUERY
+    WITH exclusive_employees AS (
+        SELECT "сотрудник_id"
+        FROM "Сотрудник_Кафедра"
+        GROUP BY "сотрудник_id"
+        HAVING COUNT(DISTINCT "кафедра_id") = 1
+    ),
+    department_stats AS (
+        SELECT 
+            k.id AS department_id,
+            k."название_кафедры" AS department_name,
+            COUNT(DISTINCT s.id) AS employee_count,
+            COALESCE(SUM(sd."процентная_ставка"), 0) AS total_stake
+        FROM "Кафедра" k
+        JOIN "Сотрудник_Кафедра" sk ON k.id = sk."кафедра_id"
+        JOIN "Сотрудник" s ON sk."сотрудник_id" = s.id
+        JOIN exclusive_employees ee ON s.id = ee."сотрудник_id"
+        LEFT JOIN "Сотрудник_Должность" sd ON s.id = sd."сотрудник_id"
+        GROUP BY k.id, k."название_кафедры"
+    )
+    SELECT 
+        ds.department_name,
+        ds.employee_count,
+        ds.total_stake
+    FROM department_stats ds
+    WHERE ds.employee_count > 0
+    ORDER BY ds.employee_count DESC, ds.department_name;
+END;
+$BODY$;
+```
