@@ -852,3 +852,58 @@ BEGIN
 END;
 $BODY$;
 ```
+
+</ol>
+
+<h4>Создать  3 триггера:</h4>
+<ol type="a">
+<li><b>Триггер любого типа на добавление сотрудника на кафедру – если сотрудник новый (не занят ни на каких других кафедрах), то его можно добавить только при условии, что по его должности на данной кафедре имеется не менее 0.5 свободных ставки.</li>
+
+```
+CREATE OR REPLACE FUNCTION public.check_employee_addition()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE NOT LEAKPROOF
+AS $BODY$
+DECLARE
+    employee_department_count INTEGER;
+    total_salary NUMERIC(10,2);
+    department_budget NUMERIC(10,2);
+    used_budget NUMERIC(10,2);
+    free_budget NUMERIC(10,2);
+    min_salary NUMERIC(10,2) := 0.5;
+BEGIN
+    SELECT COUNT(*) INTO employee_department_count
+    FROM "Сотрудник_Кафедра"
+    WHERE "сотрудник_id" = NEW."сотрудник_id";
+    
+    IF employee_department_count = 0 THEN
+        SELECT COALESCE(SUM("процентная_ставка"), 0) INTO total_salary
+        FROM "Сотрудник_Должность"
+        WHERE "сотрудник_id" = NEW."сотрудник_id";
+        
+        -- Предполагаем, что бюджет кафедры = 100000
+        department_budget := 100000;
+        
+        SELECT COALESCE(SUM(sd."процентная_ставка"), 0) INTO used_budget
+        FROM "Сотрудник_Должность" sd
+        JOIN "Сотрудник_Кафедра" sk ON sd."сотрудник_id" = sk."сотрудник_id"
+        WHERE sk."кафедра_id" = NEW."кафедра_id"
+        AND sd."сотрудник_id" != NEW."сотрудник_id";
+        
+        free_budget := department_budget - used_budget;
+        
+        IF total_salary > free_budget THEN
+            RAISE EXCEPTION 'Недостаточно бюджета на кафедре. Свободно: %, требуется: %', free_budget, total_salary;
+        END IF;
+        
+        IF total_salary < min_salary THEN
+            RAISE EXCEPTION 'Оклад сотрудника слишком низкий. Текущий: %, минимальный: %', total_salary, min_salary;
+        END IF;
+    END IF;
+    
+    RETURN NEW;
+END;
+$BODY$;
+```
