@@ -607,7 +607,7 @@ having count(distinct sd.должность_id) > 1;
     <li><b>Процедура без параметров, формирующая список сотрудников, работающих более чем на одной кафедре(отделе) в виде: ФИО, название кафедры(отдела).</li>
       
 ```
-      CREATE OR REPLACE PROCEDURE employees_multiple_departments()
+CREATE OR REPLACE PROCEDURE employees_multiple_departments()
 LANGUAGE plpgsql
 AS $$
 DECLARE
