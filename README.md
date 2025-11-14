@@ -663,7 +663,6 @@ BEGIN
     GROUP BY k.id, k."название_кафедры", d.id
     HAVING COUNT(DISTINCT sd."сотрудник_id") = 1;
     
-    -- Вывод результатов
     IF EXISTS (SELECT 1 FROM temp_departments_vacancy) THEN
         RAISE NOTICE 'Кафедры с ровно одной свободной ставкой по должности "%":', position_name;
         FOR rec IN (SELECT * FROM temp_departments_vacancy ORDER BY department_name) 
