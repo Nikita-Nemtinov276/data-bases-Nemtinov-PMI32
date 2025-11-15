@@ -907,3 +907,72 @@ BEGIN
 END;
 $BODY$;
 ```
+
+<li><b>Последующий триггер на изменение штатного расписания – при уменьшении количества ставок по какой-то должности для кафедры разрешить уменьшать не более чем на количество незанятых ставок.</li>
+
+```
+CREATE OR REPLACE FUNCTION public.check_staffing_changes()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE NOT LEAKPROOF
+AS $BODY$
+DECLARE
+    total_occupied_stake NUMERIC(10,2);
+    max_reduction NUMERIC(10,2);
+    reduction_amount NUMERIC(10,2);
+BEGIN
+    IF NEW."процентная_ставка" < OLD."процентная_ставка" THEN
+        SELECT COALESCE(SUM("процентная_ставка"), 0) INTO total_occupied_stake
+        FROM "Сотрудник_Должность"
+        WHERE "должность_id" = OLD."должность_id";
+        
+        SELECT COALESCE(SUM("процентная_ставка"), 0) INTO total_occupied_stake
+        FROM "Сотрудник_Должность"
+        WHERE "должность_id" = OLD."должность_id"
+        AND "сотрудник_id" != OLD."сотрудник_id";
+        
+        max_reduction := OLD."процентная_ставка" - total_occupied_stake;
+        
+        IF max_reduction < 0 THEN
+            max_reduction := 0;
+        END IF;
+        
+        reduction_amount := OLD."процентная_ставка" - NEW."процентная_ставка";
+        
+        IF reduction_amount > max_reduction THEN
+            RAISE EXCEPTION 'Уменьшение оклада превышает допустимое. Текущий оклад: %, запрашиваемый: %, максимальное уменьшение: %', 
+                OLD."процентная_ставка", NEW."процентная_ставка", max_reduction;
+        END IF;
+    END IF;
+    
+    RETURN NEW;
+END;
+$BODY$;
+```
+
+<li><b>Замещающий триггер на операцию увольнения сотрудника с кафедры – если сотрудник работает только в одном отделе (кафедре),  то его уволить оттуда нельзя</li>
+
+
+```
+CREATE OR REPLACE FUNCTION public.check_department_dismissal()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE NOT LEAKPROOF
+AS $BODY$
+DECLARE
+    department_count INTEGER;
+BEGIN
+    SELECT COUNT(*) INTO department_count
+    FROM "Сотрудник_Кафедра"
+    WHERE "сотрудник_id" = OLD."сотрудник_id";
+    
+    IF department_count = 1 THEN
+        RAISE EXCEPTION 'Сотрудник ID % работает только на одной кафедре. Увольнение запрещено.', OLD."сотрудник_id";
+    END IF;
+    
+    RETURN OLD;
+END;
+$BODY$;
+```
