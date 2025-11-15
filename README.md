@@ -911,10 +911,10 @@ $BODY$;
 
 ```
 CREATE OR REPLACE FUNCTION public.check_staffing_changes()
-    RETURNS trigger
-    LANGUAGE 'plpgsql'
-    COST 100
-    VOLATILE NOT LEAKPROOF
+RETURNS trigger
+LANGUAGE 'plpgsql'
+COST 100
+VOLATILE NOT LEAKPROOF
 AS $BODY$
 DECLARE
     total_occupied_stake NUMERIC(10,2);
@@ -931,7 +931,7 @@ BEGIN
         WHERE "должность_id" = OLD."должность_id"
         AND "сотрудник_id" != OLD."сотрудник_id";
         
-        max_reduction := OLD."процентная_ставка" - total_occupied_stake;
+		max_reduction := OLD."процентная_ставка" - total_occupied_stake;
         
         IF max_reduction < 0 THEN
             max_reduction := 0;
