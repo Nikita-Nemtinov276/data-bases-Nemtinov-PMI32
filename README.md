@@ -975,3 +975,4 @@ BEGIN
 END;
 $BODY$;
 ```
+![image](/SUBO/4.3.c.png)
