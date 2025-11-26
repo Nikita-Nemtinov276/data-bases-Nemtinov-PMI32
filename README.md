@@ -841,7 +841,7 @@ BEGIN
         SELECT 
             k.id AS department_id,
             k."название_кафедры" AS department_name,
-            COUNT(DISTINCT s.id)::INTEGER AS employee_count,  -- Явное приведение к INTEGER
+            COUNT(DISTINCT s.id)::INTEGER AS employee_count,
             COALESCE(SUM(sd."процентная_ставка"), 0) AS total_stake
         FROM "Кафедра" k
         JOIN "Сотрудник_Кафедра" sk ON k.id = sk."кафедра_id"
