@@ -1230,21 +1230,27 @@ $$) AS t(id agtype, фио agtype, количество_должностей agt
 <li>Вывести список отделов, где количество сотрудников пенсионного возраста превышает 20%.</li>
 
 ```
-WITH кафедра_статистика AS (
-SELECT 
-	k.id,
-	COUNT(s.id) as всего_сотрудников,
-	COUNT(CASE WHEN EXTRACT(YEAR FROM AGE(s.дата_рождения)) >= 60 THEN 1 END) as пенсионеров
-FROM Кафедра k
-LEFT JOIN Сотрудник_Кафедра sk ON k.id = sk.кафедра_id
-LEFT JOIN Сотрудник s ON s.id = sk.сотрудник_id
-WHERE s.id IS NOT NULL
-GROUP BY k.id
-)
-SELECT id, всего_сотрудников, пенсионеров
-FROM кафедра_статистика
-WHERE пенсионеров * 100.0 / всего_сотрудников < 20
-ORDER BY id;
+SELECT * FROM cypher('университет_граф', $$
+MATCH (k:Кафедра)<-[:Работает_на]-(s:Сотрудник)
+WHERE s.дата_рождения IS NOT NULL
+WITH k, s, split(s.дата_рождения, '-')[0] AS год_рождения
+WHERE год_рождения IS NOT NULL
+WITH k, s, toInteger(год_рождения) AS год_рождения_int
+WITH k, s, 2025 - год_рождения_int AS возраст
+WHERE возраст IS NOT NULL
+WITH k, 
+     COUNT(s) AS всего_сотрудников,
+     SUM(CASE WHEN возраст >= 60 THEN 1 ELSE 0 END) AS пенсионеров,
+     SUM(CASE WHEN возраст >= 60 THEN 1 ELSE 0 END) * 100.0 / COUNT(s) AS процент
+WHERE процент < 20 
+RETURN k.id AS id_кафедры,
+       k.название AS название_кафедры,
+       всего_сотрудников,
+       пенсионеров,
+       процент AS процент_пенсионеров
+ORDER BY процент, k.id
+$$) AS t(id_кафедры agtype, название_кафедры agtype, всего_сотрудников agtype, 
+         пенсионеров agtype, процент_пенсионеров agtype);
 ```
 <li>Вывести список сотрудников, чья зарплата превышает среднюю по вузу.</li>
 
