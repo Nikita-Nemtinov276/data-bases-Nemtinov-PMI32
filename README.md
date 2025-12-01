@@ -988,3 +988,14 @@ END;
 $BODY$;
 ```
 ![image](/SUBO/4.3.c.png)
+</div>
+
+
+# <img src="https://github.com/user-attachments/assets/e080adec-6af7-4bd2-b232-d43cb37024ac" width="20" height="20"/> Lab4
+[Назад](#content)
+<h3 align="center">
+  <a href="#client"></a>
+</h3>
+<div>
+	
+</div>
