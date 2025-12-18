@@ -1303,7 +1303,8 @@ $$) AS t(id agtype, фио agtype, должности agtype);
 </h3>
 <div>
 	<a href="https://github.com/Nikita-Nemtinov276/data-bases-Nemtinov-PMI32/blob/main/SUBO/НемтиновЛаб7-1.docx" target="_blank">Лабораторная №7-1</a>
-	Код первого задания:
+
+Код первого задания:
 
 	```
 	INSERT INTO public."Кафедра" ("телефон","аудитория","название_кафедры")
@@ -1345,4 +1346,5 @@ $$) AS t(id agtype, фио agtype, должности agtype);
 	
 	COMMIT;
 	```
+	
 </div>
