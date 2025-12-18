@@ -1306,45 +1306,46 @@ $$) AS t(id agtype, фио agtype, должности agtype);
 
 Код первого задания:
 
-	```
-	INSERT INTO public."Кафедра" ("телефон","аудитория","название_кафедры")
-	VALUES ('99999999999','999','кафедра')
-	INSERT INTO "Кафедра" ("телефон","аудитория","название_кафедры")
-	VALUES ('99999999998','998','кафедра 2')
-	
-	SELECT * FROM "Кафедра";
-	
-	BEGIN;
-	-- допустим, хотим удалить кафедру с id = 15
-	DELETE FROM "Кафедра" WHERE id = 15;
-	SELECT * FROM "Кафедра";
-	
-	-- Отмена транзакции — откат
-	ROLLBACK;
-	SELECT * FROM "Кафедра";
-	
-	-- Повторим: удалим, применим savepoint, откатим часть и затем зафиксируем
-	BEGIN;
-	DELETE FROM "Кафедра" WHERE id = 15;
-	-- видим отсутствие
-	SELECT * FROM "Кафедра" WHERE id = 15;
-	
-	-- создаём savepoint
-	SAVEPOINT sp1;
-	
-	-- допустим удалили ещё одну кафедру
-	DELETE FROM "Кафедра" WHERE id = 17;
-	SELECT * FROM "Кафедра";
-	
-	-- откат к savepoint — восстановит id=17 (до sp1), но не восстановит удаление id=15
-	ROLLBACK TO SAVEPOINT sp1;
-	SELECT * FROM "Кафедра";
-	
-	-- теперь снова добавим (восстановим) запись id = 15 и зафиксируем
-	ROLLBACK;
-	SELECT * FROM "Кафедра";
-	
-	COMMIT;
-	```
+
+```
+INSERT INTO public."Кафедра" ("телефон","аудитория","название_кафедры")
+VALUES ('99999999999','999','кафедра')
+INSERT INTO "Кафедра" ("телефон","аудитория","название_кафедры")
+VALUES ('99999999998','998','кафедра 2')
+
+SELECT * FROM "Кафедра";
+
+BEGIN;
+-- допустим, хотим удалить кафедру с id = 15
+DELETE FROM "Кафедра" WHERE id = 15;
+SELECT * FROM "Кафедра";
+
+-- Отмена транзакции — откат
+ROLLBACK;
+SELECT * FROM "Кафедра";
+
+-- Повторим: удалим, применим savepoint, откатим часть и затем зафиксируем
+BEGIN;
+DELETE FROM "Кафедра" WHERE id = 15;
+-- видим отсутствие
+SELECT * FROM "Кафедра" WHERE id = 15;
+
+-- создаём savepoint
+SAVEPOINT sp1;
+
+-- допустим удалили ещё одну кафедру
+DELETE FROM "Кафедра" WHERE id = 17;
+SELECT * FROM "Кафедра";
+
+-- откат к savepoint — восстановит id=17 (до sp1), но не восстановит удаление id=15
+ROLLBACK TO SAVEPOINT sp1;
+SELECT * FROM "Кафедра";
+
+-- теперь снова добавим (восстановим) запись id = 15 и зафиксируем
+ROLLBACK;
+SELECT * FROM "Кафедра";
+
+COMMIT;
+```
 	
 </div>
