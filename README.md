@@ -1296,7 +1296,7 @@ $$) AS t(id agtype, фио agtype, должности agtype);
 </div>
 
 
-# <img src="https://github.com/user-attachments/assets/e080adec-6af7-4bd2-b232-d43cb37024ac" width="20" height="20"/> Lab6
+# <img src="https://github.com/user-attachments/assets/e080adec-6af7-4bd2-b232-d43cb37024ac" width="20" height="20"/> Lab7
 [Назад](#content)
 <h3 align="center">
   <a href="#client"></a>
