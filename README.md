@@ -1347,5 +1347,127 @@ SELECT * FROM "Кафедра";
 
 COMMIT;
 ```
-	
+
+<a href="https://github.com/Nikita-Nemtinov276/data-bases-Nemtinov-PMI32/blob/main/SUBO/НемтиновЛаб7-1.docx" target="_blank">Лабораторная №7-1</a>
+
+Код второго задания:
+
+```
+-- В обеих сессиях:
+SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+-- Сценарий 1
+-- A
+BEGIN;
+SELECT "процентная_ставка" FROM "Сотрудник_Должность"
+WHERE "сотрудник_id" = 1 AND "должность_id" = 1;
+-- имитируем вычисление: -10000
+UPDATE "Сотрудник_Должность"
+SET "процентная_ставка" = "процентная_ставка" - 10000
+WHERE "сотрудник_id" = 1 AND "должность_id" = 1;
+-- НЕ COMMIT пока
+
+-- B
+BEGIN;
+SELECT "процентная_ставка" FROM "Сотрудник_Должность"
+WHERE "сотрудник_id" = 1 AND "должность_id" = 1;
+UPDATE "Сотрудник_Должность"
+SET "процентная_ставка" = "процентная_ставка" - 20000
+WHERE "сотрудник_id" = 1 AND "должность_id" = 1;
+COMMIT;  -- B завершил изменения
+
+-- A
+COMMIT;
+SELECT "процентная_ставка" FROM "Сотрудник_Должность"
+WHERE "сотрудник_id" = 1 AND "должность_id" = 1;
+
+
+-- Сценарий 2
+-- A
+SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+BEGIN;
+UPDATE "Сотрудник"
+SET фио = 'Незакоммиченные данные'
+WHERE id = 1;
+-- НЕ делаем COMMIT
+
+-- B
+SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+SELECT фио FROM "Сотрудник" WHERE id = 1;
+
+-- A
+ROLLBACK;
+
+
+-- Сценарий 4
+-- A
+BEGIN;
+SELECT "адрес" FROM "Сотрудник" WHERE id = 1;
+-- не COMMIT
+
+-- B
+BEGIN;
+UPDATE "Сотрудник" SET "адрес" = 'ул. Новый' WHERE id = 1;
+COMMIT;
+
+-- A
+SELECT "адрес" FROM "Сотрудник" WHERE id = 1; -- при READ COMMITTED увидит 'ул. Новый'
+COMMIT;
+
+
+-- Сценарий 5
+-- A
+SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+BEGIN;
+SELECT "адрес" FROM "Сотрудник" WHERE id = 1;
+-- не COMMIT
+
+-- B
+SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+BEGIN;
+UPDATE "Сотрудник" SET "адрес" = 'ул. Новый2' WHERE id = 1;
+COMMIT;
+
+-- A
+SELECT "адрес" FROM "Сотрудник" WHERE id = 1; -- при REPEATABLE READ вернёт прежнее значение
+COMMIT;
+
+
+-- Сценарий 6
+-- A
+SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+BEGIN;
+SELECT * FROM "Сотрудник" WHERE фио LIKE 'Фантом%';
+
+-- B
+SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+BEGIN;
+INSERT INTO "Сотрудник"(паспорт, фио)
+VALUES ('8888888888', 'Фантомный пользователь');
+COMMIT;
+
+-- A
+SELECT * FROM "Сотрудник" WHERE фио LIKE 'Фантом%';
+COMMIT;
+
+
+-- Сценарий 7
+-- A
+SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+BEGIN;
+SELECT * FROM "Сотрудник" WHERE фио LIKE 'СерФантом%';
+
+-- B
+SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+BEGIN;
+INSERT INTO "Сотрудник"(паспорт, фио)
+VALUES ('7777777777', 'СерФантом');
+COMMIT;
+
+-- A
+SELECT * FROM "Сотрудник" WHERE фио LIKE 'СерФантом%';
+COMMIT;
+
+```
 </div>
