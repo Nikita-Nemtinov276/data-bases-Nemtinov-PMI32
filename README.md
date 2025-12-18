@@ -1302,7 +1302,7 @@ $$) AS t(id agtype, фио agtype, должности agtype);
   <a href="#client"></a>
 </h3>
 <div>
-	<a href="https://github.com/Nikita-Nemtinov276/data-bases-Nemtinov-PMI32/blob/main/SUBO/Немтинов_ПМИ32_лаба3.docx" target="_blank">Лабораторная №7-1</a>
+	<a href="https://github.com/Nikita-Nemtinov276/data-bases-Nemtinov-PMI32/blob/main/SUBO/НемтиновЛаб7-1.docx" target="_blank">Лабораторная №7-1</a>
 	Код первого задания:
 
 	```
