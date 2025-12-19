@@ -4,6 +4,7 @@
   <a href="#-lab2"><img alt="lab2" src="https://img.shields.io/badge/Lab2-blue"></a>
   <a href="#-lab3"><img alt="lab3" src="https://img.shields.io/badge/Lab3-blue"></a>
   <a href="#-lab4"><img alt="lab4" src="https://img.shields.io/badge/Lab4-blue"></a>
+  <a href="#-lab4"><img alt="lab5" src="https://img.shields.io/badge/Lab5-blue"></a>
   <a href="#-lab6"><img alt="lab6" src="https://img.shields.io/badge/Lab6-blue"></a>
   <a href="#-lab7"><img alt="lab7" src="https://img.shields.io/badge/Lab7-blue"></a>
 </p>
@@ -992,6 +993,200 @@ $BODY$;
 ![image](/SUBO/4.3.c.png)
 </div>
 
+# <img src="https://github.com/user-attachments/assets/e080adec-6af7-4bd2-b232-d43cb37024ac" width="20" height="20"/> Lab5
+[Назад](#content)
+<h3 align="center">
+  <a href="#client"></a>
+</h3>
+<div>
+Лабораторная работа №5
+Создание ролей и присвоение прав в PostgreSQL
+
+```
+-- Создание пользователей (если их нет)
+CREATE USER IF NOT EXISTS "User_n.nemtinov" WITH PASSWORD '1234567';
+CREATE USER IF NOT EXISTS "User1_n.nemtinov" WITH PASSWORD '1234567';
+
+-- Создание ролей
+CREATE ROLE role_director;    -- Роль руководителя
+CREATE ROLE role_employee;    -- Роль сотрудника
+
+-- Назначение пользователей ролям
+GRANT role_director TO "User_n.nemtinov";
+GRANT role_employee TO "User1_n.nemtinov";
+
+-- Полные права на все таблицы с возможностью передачи
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO role_director WITH GRANT OPTION;
+
+-- Права на выполнение всех хранимых процедур
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO role_director WITH GRANT OPTION;
+
+-- Права на использование схемы
+GRANT USAGE ON SCHEMA public TO role_director;
+
+-- Права на последовательности (для автоинкрементных полей)
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO role_director;
+
+-- Конкретные права на каждую таблицу (для наглядности)
+GRANT SELECT, INSERT, UPDATE, DELETE ON 
+    "Кафедра", 
+    "Сотрудник", 
+    "Должность", 
+    "Расписание", 
+    "Занятие", 
+    "Сотрудник_Кафедра", 
+    "Сотрудник_Должность"
+TO role_director WITH GRANT OPTION;
+
+-- Права на выполнение конкретных процедур
+GRANT EXECUTE ON FUNCTION 
+    count_retired_employees(),
+    get_employees_by_position(character varying),
+    get_exclusive_departments(),
+    get_employee_total_positions(character varying, numeric)
+TO role_director WITH GRANT OPTION;
+
+-- Ограниченные права на просмотр таблиц
+GRANT SELECT ON 
+    "Кафедра",
+    "Должность",
+    "Расписание"
+TO role_employee;
+
+-- Ограниченный доступ к сотрудникам (без конфиденциальных данных)
+GRANT SELECT ("id", "фио") ON "Сотрудник" TO role_employee;
+
+-- Ограниченный доступ к связующим таблицам
+GRANT SELECT ON 
+    "Сотрудник_Кафедра",
+    "Сотрудник_Должность"
+TO role_employee;
+
+-- Права на добавление в некоторые таблицы
+GRANT INSERT ON "Расписание" TO role_employee;
+GRANT INSERT ON "Занятие" TO role_employee;
+
+-- Права на выполнение ограниченного набора процедур
+GRANT EXECUTE ON FUNCTION 
+    get_employees_by_position(character varying),
+    get_employee_total_positions(character varying, numeric)
+TO role_employee;
+
+-- Запрет на доступ к конфиденциальным данным сотрудников
+REVOKE SELECT ON "Сотрудник" FROM role_employee;
+GRANT SELECT ("id", "фио") ON "Сотрудник" TO role_employee;
+
+-- Запрет сотрудникам на изменение структуры
+REVOKE INSERT, UPDATE, DELETE ON 
+    "Кафедра", 
+    "Должность", 
+    "Сотрудник", 
+    "Сотрудник_Кафедра", 
+    "Сотрудник_Должность" 
+FROM role_employee;
+
+-- Запрет на определенные процедуры для сотрудников
+REVOKE EXECUTE ON FUNCTION 
+    count_retired_employees(),
+    get_exclusive_departments(),
+    assign_subsidy_below_average(),
+    calculate_average_salary(numeric)
+FROM role_employee;
+
+-- ЗАДАНИЕ 2: МАСКИРОВАНИЕ ДАННЫХ
+
+-- МЕТОД 1: Использование представлений (VIEWS) для маскирования
+
+-- Представление для сотрудников с маскированными данными
+CREATE OR REPLACE VIEW v_employees_masked AS
+SELECT 
+    id,
+    -- Маскирование паспорта: показываем только первые 2 и последние 2 цифры
+    overlay("паспорт" placing '******' from 3 for 6) as "паспорт",
+    "фио",
+    -- Маскирование адреса: показываем только город
+    CASE 
+        WHEN position('ул.' in "адрес") > 0 THEN 
+            split_part("адрес", 'ул.', 1) || 'ул. ******'
+        WHEN position('ул.' in "адрес") > 0 THEN 
+            split_part("адрес", 'ул.', 1) || 'ул. ******'
+        ELSE '******'
+    END as "адрес",
+    -- Маскирование телефона: показываем только код и последние 2 цифры
+    overlay("телефон" placing '***' from 4 for 3) as "телефон",
+    -- Маскирование даты рождения: показываем только год
+    extract(year from "дата_рождения") as "год_рождения"
+FROM "Сотрудник";
+
+-- Представление для руководителей с полными данными
+CREATE OR REPLACE VIEW v_employees_full AS
+SELECT * FROM "Сотрудник";
+
+-- Даем права на представления
+GRANT SELECT ON v_employees_full TO role_manager;
+GRANT SELECT ON v_employees_masked TO role_employee;
+
+-- МЕТОД 2: Использование функций для маскирования
+
+-- Функция для получения маскированных данных сотрудников
+CREATE OR REPLACE FUNCTION get_masked_employee_data()
+RETURNS TABLE (
+    id INTEGER,
+    фио TEXT,
+    паспорт_маскированный TEXT,
+    телефон_маскированный TEXT,
+    год_рождения INTEGER
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+    -- Проверяем роль пользователя
+    IF pg_has_role(current_user, 'role_manager', 'member') THEN
+        -- Руководитель видит все данные
+        RETURN QUERY
+        SELECT 
+            s.id,
+            s."фио",
+            s."паспорт" as паспорт_маскированный,
+            s."телефон" as телефон_маскированный,
+            extract(year from s."дата_рождения")::INTEGER as год_рождения
+        FROM "Сотрудник" s;
+    ELSE
+        -- Сотрудник видит маскированные данные
+        RETURN QUERY
+        SELECT 
+            s.id,
+            s."фио",
+            overlay(s."паспорт" placing '******' from 3 for 6) as паспорт_маскированный,
+            overlay(s."телефон" placing '***' from 4 for 3) as телефон_маскированный,
+            extract(year from s."дата_рождения")::INTEGER as год_рождения
+        FROM "Сотрудник" s;
+    END IF;
+END;
+$$;
+
+-- Функция для маскирования адреса
+CREATE OR REPLACE FUNCTION mask_address(full_address TEXT)
+RETURNS TEXT
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN CASE 
+        WHEN current_user IN (SELECT rolname FROM pg_roles WHERE pg_has_role(rolname, 'role_director', 'member')) THEN
+            full_address  -- Руководитель видит полный адрес
+        ELSE
+            -- Сотрудник видит маскированный адрес
+            regexp_replace(full_address, 'ул\.\s*[^,]+', 'ул. ******', 'g')
+    END;
+END;
+$$;
+
+-- Даем права на функции
+GRANT EXECUTE ON FUNCTION get_masked_employee_data() TO role_manager, role_employee;
+GRANT EXECUTE ON FUNCTION mask_address(TEXT) TO role_director, role_employee;
+```
+</div>
 
 # <img src="https://github.com/user-attachments/assets/e080adec-6af7-4bd2-b232-d43cb37024ac" width="20" height="20"/> Lab6
 [Назад](#content)
