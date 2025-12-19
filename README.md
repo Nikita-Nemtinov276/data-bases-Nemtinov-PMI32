@@ -1348,7 +1348,7 @@ SELECT * FROM "Кафедра";
 COMMIT;
 ```
 
-<a href="https://github.com/Nikita-Nemtinov276/data-bases-Nemtinov-PMI32/blob/main/SUBO/НемтиновЛаб7-1.docx" target="_blank">Лабораторная №7-2</a>
+<a href="https://github.com/Nikita-Nemtinov276/data-bases-Nemtinov-PMI32/blob/main/SUBO/НемтиновЛаб7-2.docx" target="_blank">Лабораторная №7-2</a>
 
 Код второго задания:
 
