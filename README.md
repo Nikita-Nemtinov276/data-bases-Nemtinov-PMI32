@@ -7,6 +7,7 @@
   <a href="#-lab5"><img alt="lab5" src="https://img.shields.io/badge/Lab5-blue"></a>
   <a href="#-lab6"><img alt="lab6" src="https://img.shields.io/badge/Lab6-blue"></a>
   <a href="#-lab7"><img alt="lab7" src="https://img.shields.io/badge/Lab7-blue"></a>
+  <a href="#-lab8"><img alt="lab8" src="https://img.shields.io/badge/Lab8-blue"></a>
 </p>
 <h3 align="center"> <a href="#client"></a> 
   Вариант 25. Отдел кадров вуза.
@@ -1666,3 +1667,28 @@ COMMIT;
 
 ```
 </div>
+
+
+# <img src="https://github.com/user-attachments/assets/e080adec-6af7-4bd2-b232-d43cb37024ac" width="20" height="20"/> Lab8
+[Назад](#content)
+<h3 align="center">
+  <a href="#client"></a>
+</h3>
+
+<div>
+  <h4>Задание 1</h4>
+
+  <p>Выполните запросы :</p>
+   <ol>
+    <li>Выведите все документы коллекции Ресторан в формате: restaurant_id, name, borough и cuisine, вывод _id для всех документов исключить.</li>
+<pre><code>
+db.restaurants.find({},
+	{
+	_id: 0,
+	restaurant_id: 1,
+	name: 1,
+	borough: 1,
+	cuisine: 1
+	}
+)
+</code></pre>
