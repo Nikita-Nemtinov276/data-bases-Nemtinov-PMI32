@@ -1999,3 +1999,36 @@ db.weather.aggregate([
   }
 ])
 ```
+
+![image](/SUBO/8.2.2.png)
+	<li>Найти первые 10 записей с самой низкой погодой, когда дул ветер с юга и посчитайте среднюю температуры для этих записей</li>
+
+```
+db.weather.aggregate([
+  {
+    $match: { wind_direction: "Южный" }
+  },
+  {
+    $sort: { temperature: 1 }
+  },
+  {
+    $limit: 10
+  },
+  {
+    $group: {
+      _id: null,
+      avgTemperature: { $avg: "$temperature" },
+      records: { $push: "$$ROOT" }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      avgTemperature: 1,
+      records: 1
+    }
+  }
+])
+```
+
+![image](/SUBO/8.2.3.png)
