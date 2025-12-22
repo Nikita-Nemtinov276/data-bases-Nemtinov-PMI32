@@ -2085,3 +2085,97 @@ db.weather.aggregate([
   }
 ])
 ```	
+
+![image](/SUBO/8.2.5.png)
+	<li>Какова вероятность того что в ясный день выпадут осадки? (Предположим, что день считается ясным, если ясная погода фиксируется более чем в 75% случаев)</li>
+
+```
+db.weather.aggregate([
+  {
+    $group: {
+      _id: {
+        year: "$year",
+        month: "$month",
+        day: "$day"
+      },
+      total: { $sum: 1 },
+      clearCount: {
+        $sum: {
+          $cond: [{ $eq: ["$code", "CL"] }, 1, 0]
+        }
+      },
+      hadPrecipitation: {
+        $max: {
+          $cond: [
+            {
+              $and: [
+                { $lt: ["$visibility", 10] },
+                { $gt: ["$humidity", 0] }
+              ]
+            },
+            1,
+            0
+          ]
+        }
+      }
+    }
+  },
+  {
+    $addFields: {
+      clearRatio: {
+        $divide: ["$clearCount", "$total"]
+      }
+    }
+  },
+  {
+    $match: {
+      clearRatio: { $gt: 0.75 }
+    }
+  },
+  {
+    $group: {
+      _id: null,
+      clearDaysTotal: { $sum: 1 },
+      clearDaysRain: { $sum: "$hadPrecipitation" }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      probability: {
+        $divide: [
+          "$clearDaysRain",
+          "$clearDaysTotal"
+        ]
+      }
+    }
+  }
+])
+```
+
+![image](/SUBO/8.2.6.png)
+	<li>Увеличьте температуру на один градус при каждом измерении в нечетный день во время зимы. На сколько градусов изменилась средняя температура?</li>
+
+```
+var avg_before = db.weather.aggregate([
+  { $match: { month: { $in: [12, 1, 2] } } },
+  { $group: { _id: null, avgTemp: { $avg: "$temperature" } } }
+]).next().avgTemp;
+
+var updateResult = db.weather.updateMany(
+  {
+    month: { $in: [12, 1, 2] },
+    day: { $mod: [2, 1] }  // нечётные дни
+  },
+  { $inc: { temperature: 1 } }
+);
+
+var avg_after = db.weather.aggregate([
+  { $match: { month: { $in: [12, 1, 2] } } },
+  { $group: { _id: null, avgTemp: { $avg: "$temperature" } } }
+]).next().avgTemp;
+
+print("AVG до: " + avg_before.toFixed(2));
+print("AVG после: " + avg_after.toFixed(2));
+print("Изменение AVG: " + (avg_after - avg_before).toFixed(2));
+```
