@@ -1791,3 +1791,27 @@ db.restaurants.find(
   }
 )
 ```
+
+![image](/SUBO/8.1.6.1.png)
+![image](/SUBO/8.1.6.2.png)
+	<li>Найдите идентификатор ресторана, название и оценки для тех ресторанов, которые «2014-08-11T00: 00: 00Z» набрали 9 баллов за оценку А</li>
+
+```
+db.restaurants.find(
+  {
+    grades: {
+      $elemMatch: {
+        "date.$date": 1407715200000,
+        grade: "A",
+        score: 9
+      }
+    }
+  },
+  {
+    _id: 0,
+    restaurant_id: 1,
+    name: 1,
+    grades: 1
+  }
+)
+```
