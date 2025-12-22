@@ -1680,7 +1680,7 @@ COMMIT;
 
   <p>Выполните запросы :</p>
    <ol>
-    <li>Выведите все документы коллекции Ресторан в формате: restaurant_id, name, borough и cuisine, вывод _id для всех документов исключить.</li>
+    <li>Выведите все документы коллекции Ресторан в формате: restaurant_id, name, borough и cuisine, вывод  _id  для всех документов исключить.</li>
 <pre><code>
 db.restaurants.find({},
 	{
