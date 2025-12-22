@@ -2179,3 +2179,7 @@ print("AVG до: " + avg_before.toFixed(2));
 print("AVG после: " + avg_after.toFixed(2));
 print("Изменение AVG: " + (avg_after - avg_before).toFixed(2));
 ```
+
+![image](/SUBO/8.2.7.png)
+	</ol>
+</div>
