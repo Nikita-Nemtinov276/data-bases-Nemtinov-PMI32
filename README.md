@@ -1681,7 +1681,8 @@ COMMIT;
   <p>Выполните запросы :</p>
    <ol>
     <li>Выведите все документы коллекции Ресторан в формате: restaurant_id, name, borough и cuisine, вывод  _id  для всех документов исключить.</li>
-<pre><code>
+
+```
 db.restaurants.find({},
 	{
 	_id: 0,
@@ -1691,7 +1692,7 @@ db.restaurants.find({},
 	cuisine: 1
 	}
 )
-</code></pre>
+```
 	   
 ![image](/SUBO/8.1.1.1.png)
 ![image](/SUBO/8.1.1.2.png)
