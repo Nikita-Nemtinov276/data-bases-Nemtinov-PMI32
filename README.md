@@ -1749,3 +1749,23 @@ db.restaurants.find(
   }
 ).sort({ cuisine: -1 })
 ```
+
+![image](/SUBO/8.1.4.1.png)
+![image](/SUBO/8.1.4.2.png)
+![image](/SUBO/8.1.4.3.png)
+![image](/SUBO/8.1.4.4.png)
+![image](/SUBO/8.1.4.5.png)
+	<li>Найдите идентификатор ресторана, название, район и кухню для тех ресторанов, чье название начинается с первых трех букв назвали «Wil»</li>
+
+```
+db.restaurants.find(
+  { name: { $regex: /^Wil/ } },
+  {
+	_id: 0,
+	restaurant_id: 1,
+	name: 1,
+	borough: 1,
+	cuisine: 1
+  }
+)
+```
