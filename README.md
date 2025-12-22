@@ -1692,6 +1692,7 @@ db.restaurants.find({},
 	}
 )
 </code></pre>
+	   
 ![image](/SUBO/8.1.1.1.png)
 ![image](/SUBO/8.1.1.2.png)
 ![image](/SUBO/8.1.1.3.png)
