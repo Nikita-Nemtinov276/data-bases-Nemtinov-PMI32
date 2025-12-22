@@ -1956,3 +1956,41 @@ db.weather.aggregate([
   }
 ])
 ```
+
+![image](/SUBO/8.2.1.png)
+	<li>Какова средняя температура в году, если исключить 10 дней с самой низкой температурой и 10 дней с самой высокой?</li>
+
+```
+db.weather.aggregate([
+  {
+    $group: {
+      _id: { year: "$year", month: "$month", day: "$day" },
+      avgTemp: { $avg: "$temperature" }
+    }
+  },
+  {
+    $sort: { avgTemp: 1 }
+  },
+  {
+    $skip: 10
+  },
+  {
+    $sort: { avgTemp: -1 }
+  },
+  {
+    $skip: 10
+  },
+  {
+    $group: {
+      _id: null,
+      avgTemperature: { $avg: "$avgTemp" }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      avgTemperature: 1
+    }
+  }
+])
+```
