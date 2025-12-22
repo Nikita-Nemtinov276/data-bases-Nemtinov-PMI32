@@ -1884,7 +1884,7 @@ db.restaurants.insertOne({
 	<li>В добавленном ресторане укажите информацию о времени его работы.</li>
 
 ```
-db.restaurants.insertOne({
+db.restaurants.updateOne({
   address: {
     building: "58",
     street: "Машиностроителей",
