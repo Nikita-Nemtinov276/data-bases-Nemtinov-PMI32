@@ -2052,3 +2052,59 @@ db.weather.aggregate([
   }
 ])
 ```
+
+![image](/SUBO/8.2.4.png)
+	<li>В течение зимы иногда шел снег, а иногда дождь. Насколько больше (или меньше) выпало осадков в виде снега.</li>
+
+```
+db.weather.aggregate([
+  {
+    $match: {
+      $or: [
+        { month: 12 },
+        { month: 1 },
+        { month: 2 }
+      ]
+    }
+  },
+  {
+    $project: {
+     Type: {
+        $cond: [
+          { $lt: ["$temperature", 0] },
+          "snow",
+          "rain"
+        ]
+      }
+    }
+  },
+  {
+    $group: {
+      _id: "$Type",
+      count: { $sum: 1 }
+    }
+  },
+  {
+    $group: {
+      _id: null,
+      snow: {
+        $sum: {
+          $cond: [{ $eq: ["$_id", "snow"] }, "$count", 0]
+        }
+      },
+      rain: {
+        $sum: {
+          $cond: [{ $eq: ["$_id", "rain"] }, "$count", 0]
+        }
+      }
+    }
+  },
+  {
+    $project: {
+      snow: 1,
+      rain: 1,
+      difference: { $subtract: ["$snow", "$rain"] }
+    }
+  }
+])
+```	
