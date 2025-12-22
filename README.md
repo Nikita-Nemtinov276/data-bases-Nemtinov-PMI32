@@ -2060,50 +2060,27 @@ db.weather.aggregate([
 db.weather.aggregate([
   {
     $match: {
-      $or: [
-        { month: 12 },
-        { month: 1 },
-        { month: 2 }
-      ]
-    }
-  },
-  {
-    $project: {
-     Type: {
-        $cond: [
-          { $lt: ["$temperature", 0] },
-          "snow",
-          "rain"
-        ]
-      }
-    }
-  },
-  {
-    $group: {
-      _id: "$Type",
-      count: { $sum: 1 }
+      month: { $in: [12, 1, 2] },
+      code: { $in: ["SN", "RA"] }
     }
   },
   {
     $group: {
       _id: null,
-      snow: {
-        $sum: {
-          $cond: [{ $eq: ["$_id", "snow"] }, "$count", 0]
-        }
+      snowDays: {
+        $sum: { $cond: [{ $eq: ["$code", "SN"] }, 1, 0] }
       },
-      rain: {
-        $sum: {
-          $cond: [{ $eq: ["$_id", "rain"] }, "$count", 0]
-        }
+      rainDays: {
+        $sum: { $cond: [{ $eq: ["$code", "RA"] }, 1, 0] }
       }
     }
   },
   {
     $project: {
-      snow: 1,
-      rain: 1,
-      difference: { $subtract: ["$snow", "$rain"] }
+      _id: 0,
+      snowDays: 1,
+      rainDays: 1,
+      difference: { $subtract: ["$snowDays", "$rainDays"] }
     }
   }
 ])
