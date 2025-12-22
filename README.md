@@ -1769,3 +1769,25 @@ db.restaurants.find(
   }
 )
 ```
+
+![image](/SUBO/8.1.5.png)
+	<li>Найдите рестораны, которые относятся к району Bronx и готовят American или Chinese блюда.</li>
+
+```
+db.restaurants.find(
+  {
+    borough: "Bronx",
+    $or: [
+      { cuisine: "American" },
+      { cuisine: "Chinese" }
+    ]
+  },
+  {
+	_id: 0,
+	name: 1,
+	borough: 1,
+	cuisine: 1,
+	restaurant_id: 1
+  }
+)
+```
