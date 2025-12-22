@@ -1815,3 +1815,27 @@ db.restaurants.find(
   }
 )
 ```
+
+![image](/SUBO/8.1.7.png)
+	<li>В каждом районе посчитайте количество ресторанов по каждому виду кухни. Документ должен иметь формат borough, cuisine, count</li>
+
+```
+db.restaurants.aggregate([
+  {
+    $group: {
+      _id: {
+		borough: "$borough",
+		cuisine: "$cuisine"
+      }, count: { $sum: 1 }
+    }
+  },
+  {
+    $project: {
+      _id: 0, 
+      borough: "$_id.borough",
+      cuisine: "$_id.cuisine",
+      count: 1
+    }
+  }
+])
+```
