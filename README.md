@@ -1930,3 +1930,29 @@ db.restaurants.updateOne(
 );
 ```
 ![image](/SUBO/8.1.12.png)
+
+  </ol>
+
+  <h4>Задание 2</h4>
+
+  <p>Выполните запросы с использованием Aggregate:</p>
+  <ol>
+	<li>Какова разница между максимальной и минимальной температурой в течение года?</li>
+
+```
+db.weather.aggregate([
+  {
+    $group: {
+      _id: null,
+      maxTemp: { $max: "$temperature" },
+      minTemp: { $min: "$temperature" }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      temperatureDifference: { $subtract: ["$maxTemp", "$minTemp"] }
+    }
+  }
+])
+```
