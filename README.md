@@ -1879,3 +1879,32 @@ db.restaurants.insertOne({
   restaurant_id: "864228632"
 });
 ```	
+
+![image](/SUBO/8.1.10.png)
+	<li>В добавленном ресторане укажите информацию о времени его работы.</li>
+
+```
+db.restaurants.insertOne({
+  address: {
+    building: "58",
+    street: "Машиностроителей",
+    zipcode: 999999
+  },
+  borough: "Ярославль",
+  cuisine: "Фаст-фуд",
+  grades: [
+    { date: { "$date": ISODate("2025-12-22T00:00:00Z") }, grade: "A", score: 5 }
+  ],
+  name: "Шашлык-Машлык",
+  restaurant_id: "864228632",
+  working_hours: {
+    monday:    "10:00–21:30",
+    tuesday:   "10:00–21:30",
+    wednesday: "10:00–21:30",
+    thursday:  "10:00–21:30",
+    friday:    "10:00–21:30",
+    saturday:  "10:00–21:30",
+    sunday:    "10:00–21:30"
+  }
+});
+```
