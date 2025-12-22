@@ -1964,32 +1964,37 @@ db.weather.aggregate([
 db.weather.aggregate([
   {
     $group: {
-      _id: { year: "$year", month: "$month", day: "$day" },
-      avgTemp: { $avg: "$temperature" }
+      _id: {
+        year: "$year",
+        month: "$month",
+        day: "$day"
+      },
+      avgDayTemp: { $avg: "$temperature" }
     }
   },
   {
-    $sort: { avgTemp: 1 }
-  },
-  {
-    $skip: 10
-  },
-  {
-    $sort: { avgTemp: -1 }
-  },
-  {
-    $skip: 10
+    $sort: { avgDayTemp: 1 }
   },
   {
     $group: {
       _id: null,
-      avgTemperature: { $avg: "$avgTemp" }
+      days: { $push: "$avgDayTemp" }
     }
   },
   {
     $project: {
-      _id: 0,
-      avgTemperature: 1
+      trimmedDays: {
+        $slice: [
+          "$days",
+          10,
+          { $subtract: [ { $size: "$days" }, 20 ] }
+        ]
+      }
+    }
+  },
+  {
+    $project: {
+      averageTemperature: { $avg: "$trimmedDays" }
     }
   }
 ])
