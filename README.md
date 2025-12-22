@@ -1839,3 +1839,23 @@ db.restaurants.aggregate([
   }
 ])
 ```
+
+![image](/SUBO/8.1.8.png)
+	<li>В районе Bronx найдите ресторан с минимальной суммой набранных баллов.</li>
+
+```
+db.restaurants.aggregate([
+  { $match: { borough: "Bronx" } },
+  { $addFields: { totalScore: { $sum: "$grades.score" } } },
+  { $sort: { totalScore: 1 } },
+  { $limit: 1 },
+  { $project: {
+		_id: 0,
+		name: 1,
+		borough: 1,
+		totalScore: 1,
+		cuisine: 1
+	}
+  }
+])
+```
