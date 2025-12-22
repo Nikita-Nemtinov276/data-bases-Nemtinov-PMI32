@@ -2031,4 +2031,24 @@ db.weather.aggregate([
 ])
 ```
 
-![image](/SUBO/8.2.3.png)
+![image](/SUBO/8.2.3.1.png)
+![image](/SUBO/8.2.3.2.png)
+![image](/SUBO/8.2.3.3.png)
+![image](/SUBO/8.2.3.4.png)
+	<li>Подсчитайте количество дней, когда шел снег. (Будем считать снегом осадки, которые выпали, когда температура была ниже нуля)</li>
+
+```
+db.weather.aggregate([
+  {
+    $match: { temperature: { $lt: 0 } }
+  },
+  {
+    $group: {
+      _id: { year: "$year", month: "$month", day: "$day" }
+    }
+  },
+  {
+    $count: "snowyDays"
+  }
+])
+```
