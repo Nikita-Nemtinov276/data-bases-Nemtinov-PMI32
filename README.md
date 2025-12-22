@@ -2048,7 +2048,7 @@ db.weather.aggregate([
     }
   },
   {
-    $count: "snowyDays"
+    $count: "DaysWithSnow"
   }
 ])
 ```
