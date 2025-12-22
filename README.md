@@ -1859,3 +1859,23 @@ db.restaurants.aggregate([
   }
 ])
 ```
+
+![image](/SUBO/8.1.9.png)
+	<li>Добавьте в коллекцию свой любимый ресторан.</li>
+
+```
+db.restaurants.insertOne({
+  address: {
+    building: "58",
+    street: "Машиностроителей",
+    zipcode: 999999
+  },
+  borough: "Ярославль",
+  cuisine: "Фаст-фуд",
+  grades: [
+    { date: { "$date": ISODate("2025-12-22T00:00:00Z") }, grade: "A", score: 5 }
+  ],
+  name: "Шашлык-Машлык",
+  restaurant_id: "864228632"
+});
+```	
