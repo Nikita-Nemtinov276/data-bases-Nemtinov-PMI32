@@ -2165,7 +2165,7 @@ var avg_before = db.weather.aggregate([
 var updateResult = db.weather.updateMany(
   {
     month: { $in: [12, 1, 2] },
-    day: { $mod: [2, 1] }  // нечётные дни
+    day: { $mod: [2, 1] } 
   },
   { $inc: { temperature: 1 } }
 );
