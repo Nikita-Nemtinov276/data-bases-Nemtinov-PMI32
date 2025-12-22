@@ -1728,3 +1728,24 @@ db.restaurants.find(
   }
 )
 ```
+
+![image](/SUBO/8.1.3.png)
+	<li>Найдите рестораны, которые не относятся к типу кухни American, получили оценку «А», не расположены в районе Brooklyn. Документ должен отображаться в соответствии с кухней в порядке убывания.</li>
+
+```
+db.restaurants.find(
+  {
+    cuisine: { $ne: "American" },
+    borough: { $ne: "Brooklyn" },
+    grades: { $elemMatch: { grade: "A" } }
+  },
+  {
+	_id: 0,
+	name: 1,
+	borough: 1,
+	cuisine: 1,
+	restaurant_id: 1,
+	grades: 1
+  }
+).sort({ cuisine: -1 })
+```
