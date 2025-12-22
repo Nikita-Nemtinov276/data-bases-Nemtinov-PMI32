@@ -1697,3 +1697,17 @@ db.restaurants.find({},
 ![image](/SUBO/8.1.1.1.png)
 ![image](/SUBO/8.1.1.2.png)
 ![image](/SUBO/8.1.1.3.png)
+	<li>Выведите первые 5 ресторанов в алфавитном порядке, которые находятся в районе Bronx.</li>
+
+```
+db.restaurants.find(
+  { borough: "Bronx" },
+  {
+	_id: 0,
+	name: 1,
+	borough: 1,
+	cuisine: 1,
+	restaurant_id: 1
+  }
+).sort({ name: 1 }).limit(5)
+```
