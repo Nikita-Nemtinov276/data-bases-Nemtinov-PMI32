@@ -1711,3 +1711,20 @@ db.restaurants.find(
   }
 ).sort({ name: 1 }).limit(5)
 ```
+
+![image](/SUBO/8.1.2.png)
+	<li>Найдите рестораны, которые набрали более 80, но менее 100 баллов.</li>
+
+```
+db.restaurants.find(
+  { grades: { $elemMatch: { score: { $gt: 80, $lt: 100 } } } },
+  { 
+    _id: 0, 
+    name: 1, 
+    borough: 1, 
+    cuisine: 1, 
+    restaurant_id: 1, 
+    grades: 1 
+  }
+)
+```
